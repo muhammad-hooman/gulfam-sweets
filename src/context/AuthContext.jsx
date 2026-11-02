@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
 
         const { data: inserted, error: insertErr } = await supabase
           .from('profiles')
-          .insert(newProfile)
+          .upsert(newProfile, { onConflict: 'id' })
           .select()
           .maybeSingle();
 
@@ -187,7 +187,11 @@ export function AuthProvider({ children }) {
   // Google OAuth Login
   const loginWithGoogle = async (redirectPath = '/account') => {
     if (isSupabaseConfigured && supabase) {
-      sessionStorage.setItem('gulfam_auth_redirect', redirectPath);
+      try {
+        sessionStorage.setItem('gulfam_auth_redirect', redirectPath);
+      } catch (e) {
+        console.warn('Could not store auth redirect in sessionStorage:', e);
+      }
       const callbackUrl = `${window.location.origin}/auth/callback`;
 
       const { data, error } = await supabase.auth.signInWithOAuth({
