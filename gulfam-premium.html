@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gulfam Sweets & Dairy | Royal Mithai, Bakery & Frozen Foods</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{m:{DEFAULT:'#6B0F1A',dark:'#45090F',soft:'#F8EDEE'},g:{DEFAULT:'#D4A62A',light:'#F3E2A9',dark:'#B8891A'},cream:'#FFF9EE'},fontFamily:{display:['"Playfair Display"','serif']}}}}</script>
+<style>
+body{font-family:Poppins,sans-serif;color:#2d2326;background:linear-gradient(#fff,#FFF9EE 60%)}
+.page{display:none}.page.active{display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.75rem 1.6rem;font-weight:600;font-size:.85rem;border-radius:999px;transition:.25s;cursor:pointer}
+.btn-m{background:#6B0F1A;color:#fff}.btn-m:hover{background:#45090F}
+.btn-g{background:linear-gradient(135deg,#E3B93C,#C79A1F);color:#3a0a10}.btn-g:hover{filter:brightness(1.08)}
+.btn-o{border:1.5px solid #6B0F1A;color:#6B0F1A}.btn-o:hover{background:#6B0F1A;color:#fff}
+.nv a{font-size:.8rem;font-weight:500;padding:.4rem .1rem;color:#3a2a2e;white-space:nowrap}
+.nv a:hover,.nv a.on{color:#6B0F1A;box-shadow:inset 0 -2px #D4A62A}
+.pill{padding:.5rem 1.2rem;border-radius:999px;font-size:.8rem;font-weight:500;background:#fff;border:1px solid #eadfc4;transition:.2s;white-space:nowrap}
+.pill:hover{border-color:#D4A62A}.pill.on{background:#6B0F1A;color:#fff;border-color:#6B0F1A}
+.pc{background:#fff;border-radius:18px;border:1px solid #f0e6cc;overflow:hidden;display:flex;flex-direction:column;transition:.3s}
+.pc:hover{transform:translateY(-5px);box-shadow:0 18px 40px -16px rgba(107,15,26,.35);border-color:#D4A62A}
+.pc img{transition:.5s}.pc:hover img{transform:scale(1.06)}
+.wc{padding:.2rem .65rem;font-size:.7rem;border-radius:999px;border:1px solid #e5d8b4;background:#fff}.wc.on{background:#F3E2A9;border-color:#D4A62A;color:#45090F;font-weight:600}
+.tag{position:absolute;top:10px;left:10px;background:#6B0F1A;color:#F3E2A9;font-size:.65rem;font-weight:600;padding:3px 10px;border-radius:999px}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ring{border:3px solid #D4A62A;padding:4px}
+.cc:hover .ring{background:#F3E2A9;transform:scale(1.05)}.ring{transition:.3s}
+#drawer{transform:translateX(100%);transition:.35s}#drawer.open{transform:none}
+#lb,#sbar,#mnav{display:none}#lb.open{display:flex}#sbar.open,#mnav.open{display:block}
+input,select,textarea{border:1px solid #e3d7b8;padding:.65rem .9rem;font-size:.85rem;width:100%;background:#fff;border-radius:12px}
+input:focus,select:focus,textarea:focus{outline:2px solid #D4A62A;border-color:#D4A62A}
+.hide-sb{scrollbar-width:none}.hide-sb::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+<div class="bg-m-dark text-white/90 text-xs"><div class="max-w-7xl mx-auto px-4 py-2 flex justify-between gap-3">
+ <span class="text-g-light">Free delivery on orders above Rs. 3,000 &middot; Open daily 8 AM to 11 PM</span>
+ <div class="hidden sm:flex gap-5"><a href="#about" class="hover:text-g">About Us</a><a href="#contact" class="hover:text-g">Contact</a><a href="tel:+923001234567" class="hover:text-g">0300 1234567</a></div></div></div>
+
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur shadow-sm">
+ <div class="max-w-7xl mx-auto px-4 h-[72px] flex items-center justify-between gap-4">
+  <button id="burger" class="xl:hidden text-m" aria-label="Menu"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a href="#home" class="flex items-center gap-2.5 shrink-0"><span class="w-10 h-10 rounded-lg bg-m grid place-items-center font-display text-2xl font-bold text-g">G</span><span class="leading-none"><span class="font-display text-xl md:text-2xl font-bold text-m block">Gulfam Sweets</span><span class="text-[9px] tracking-[.22em] text-g-dark font-semibold">MITHAI &middot; BAKERY &middot; DAIRY</span></span></a>
+  <nav class="nv hidden xl:flex gap-6 items-center" id="nav">
+   <a href="#home" data-n="home">Home</a><a href="#mithai" data-n="mithai">Mithai</a><a href="#nimco" data-n="nimco">Nimco</a><a href="#snacks" data-n="snacks">Fresh Snacks</a><a href="#frozen" data-n="frozen">Frozen Foods <sup class="bg-m text-g text-[8px] px-1 rounded">NEW</sup></a><a href="#bakery" data-n="bakery">Bakery</a><a href="#cakes" data-n="cakes">Cakes</a><a href="#wedding" data-n="wedding" class="!text-g-dark font-semibold">Wedding &amp; Bulk</a></nav>
+  <div class="flex items-center gap-3 text-m">
+   <button id="sBtn" aria-label="Search"><svg width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+   <button id="cartBtn" class="relative bg-m text-white rounded-full pl-4 pr-5 py-2 flex items-center gap-2 text-sm font-medium" aria-label="Open cart"><svg width="18" height="18" fill="none" stroke="#D4A62A" stroke-width="2" viewBox="0 0 24 24"><path d="M3 4h2l2.4 11h10.2L20 7H6"/><circle cx="9" cy="19.5" r="1.2"/><circle cx="17" cy="19.5" r="1.2"/></svg><span id="hTot">Rs. 0</span><span id="cnt" class="absolute -top-1.5 -left-1 bg-g text-m-dark text-[10px] font-bold rounded-full min-w-[18px] h-[18px] grid place-items-center">0</span></button></div>
+ </div>
+ <div id="sbar" class="border-t bg-white"><form id="sf" class="max-w-2xl mx-auto p-3 flex gap-2"><input id="q" placeholder="Search samosas, gulab jamun, nan khatai, frozen..."><button class="btn btn-m">Search</button></form></div>
+ <div id="mnav" class="xl:hidden border-t bg-white px-4 py-3"><div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm font-medium nv"><a href="#home">Home</a><a href="#mithai">Mithai</a><a href="#nimco">Nimco</a><a href="#snacks">Fresh Snacks</a><a href="#frozen">Frozen Foods</a><a href="#bakery">Bakery</a><a href="#cakes">Cakes</a><a href="#wedding">Wedding &amp; Bulk</a><a href="#about">About Us</a><a href="#contact">Contact</a></div></div>
+</header>
+
+<main>
+<!-- HOME -->
+<section class="page" id="p-home">
+ <div class="max-w-7xl mx-auto px-4 pt-5"><div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs" id="feat"></div></div>
+ <div class="max-w-7xl mx-auto px-4 py-12 md:py-20 grid md:grid-cols-2 gap-10 items-center">
+  <div><p class="text-[11px] tracking-[.25em] text-g-dark font-semibold">DECADES OF ROYAL CONFECTIONERY HERITAGE</p>
+   <h1 class="font-display text-4xl md:text-6xl font-bold text-m-dark leading-[1.1] mt-4">Delicious Mithai &amp; Fresh Delights for <em class="text-g-dark">Every Occasion</em></h1>
+   <p class="mt-5 text-stone-600 leading-relaxed max-w-lg text-sm md:text-base">Handcrafted with 100% pure desi ghee, saffron and hand-picked dry fruits. Order online for fast delivery, fresh from our kitchen since 1990.</p>
+   <div class="flex flex-wrap gap-3 mt-8"><a href="#mithai" class="btn btn-m">Shop Mithai</a><a href="#wedding" class="btn btn-g">Wedding &amp; Bulk Orders</a></div></div>
+  <div class="relative max-w-md mx-auto w-full"><div class="aspect-square rounded-full ring overflow-hidden shadow-2xl"><img data-img="1599599810769-bcde5a160d32" alt="Assorted mithai" class="w-full h-full object-cover rounded-full"></div>
+   <div class="absolute -bottom-2 -left-2 md:-left-8 bg-white rounded-2xl shadow-xl px-5 py-3 border border-g-light"><p class="text-xs text-stone-500">Festive favourite</p><p class="font-display text-m font-bold">25 Assorted Mithai</p></div></div>
+ </div>
+
+ <div class="max-w-7xl mx-auto px-4 pb-6 text-center"><h2 class="font-display text-3xl md:text-4xl font-bold text-m-dark">Shop by <em class="text-g-dark">Category</em></h2><p class="text-sm text-stone-500 mt-2">Explore our freshly made catalog of royal delicacies.</p>
+  <div class="flex md:justify-center gap-6 md:gap-9 overflow-x-auto hide-sb mt-10 pb-2" id="circles"></div></div>
+
+ <div class="max-w-7xl mx-auto px-4 py-12"><div class="flex flex-col md:flex-row gap-4 md:items-center justify-between">
+   <div class="flex gap-2 overflow-x-auto hide-sb pb-1" id="pills"></div><input id="hq" type="search" placeholder="Search samosas, gulab jamun, nan khatai..." class="md:max-w-xs !rounded-full"></div>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-8" id="hgrid"></div><p id="hnone" class="hidden text-center text-stone-500 py-12">No delicacies match your search.</p>
+  <div class="text-center mt-10"><a href="#all" class="btn btn-o">View All Delicacies</a></div></div>
+
+ <div class="bg-m"><div class="max-w-7xl mx-auto px-4 py-14 grid md:grid-cols-[1fr_auto] gap-6 items-center"><div><p class="text-g text-xs tracking-[.25em] font-semibold">WEDDINGS, EVENTS &amp; CORPORATE GIFTING</p><h2 class="font-display text-3xl md:text-4xl text-white font-bold mt-2">Planning a celebration? <em class="text-g">We cater to 10 or 10,000.</em></h2><p class="text-white/75 text-sm mt-3 max-w-xl">Custom mithai thaals, dry-fruit hampers and bulk orders with free tasting and delivery coordination.</p></div><a href="#wedding" class="btn btn-g">Get a Bulk Quote</a></div></div>
+
+ <div class="max-w-7xl mx-auto px-4 py-16 text-center"><h2 class="font-display text-3xl md:text-4xl font-bold text-m-dark">Loved by <em class="text-g-dark">Families</em></h2><div class="grid md:grid-cols-3 gap-6 mt-10 text-left" id="testi"></div></div>
+</section>
+
+<!-- SHOP -->
+<section class="page" id="p-shop">
+ <div class="bg-m relative overflow-hidden"><div class="max-w-7xl mx-auto px-4 py-12 text-center"><p class="text-g text-xs tracking-[.25em]" id="shCrumb"></p><h1 class="font-display text-4xl md:text-5xl font-bold text-white mt-2" id="shTitle"></h1><p class="text-white/75 text-sm mt-3 max-w-xl mx-auto" id="shDesc"></p></div></div>
+ <div id="note" class="hidden bg-g-light text-m-dark text-sm text-center py-3 px-4"></div>
+ <div class="max-w-7xl mx-auto px-4 py-10">
+  <div class="flex flex-col md:flex-row gap-3 justify-between mb-8"><input id="sq" type="search" placeholder="Search in this category..." class="md:max-w-xs !rounded-full"><div class="flex items-center gap-3"><span class="text-sm text-stone-500" id="rc"></span><select id="sort" class="!w-auto !rounded-full"><option value="">Featured</option><option value="lo">Price: low to high</option><option value="hi">Price: high to low</option><option value="az">Name: A to Z</option></select></div></div>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6" id="grid"></div><p id="none" class="hidden text-center text-stone-500 py-16">No products found. Try a different search.</p>
+  <div id="bulk" class="hidden mt-16 bg-white rounded-3xl border border-g-light p-6 md:p-10 grid md:grid-cols-2 gap-8"><div><h2 class="font-display text-3xl font-bold text-m-dark">Request a <em class="text-g-dark">Bulk Quote</em></h2><p class="text-sm text-stone-600 mt-3 leading-relaxed">Tell us about your event and we will reply on WhatsApp with a custom menu and price. Orders of 10 kg and above include free delivery.</p></div>
+   <form id="bform" class="space-y-3"><input name="n" required placeholder="Your name"><input name="p" type="tel" required placeholder="Phone number"><div class="grid grid-cols-2 gap-3"><select name="e"><option>Wedding</option><option>Mehndi / Barat</option><option>Corporate gifting</option><option>Eid / Festival</option><option>Other</option></select><input name="d" type="date" required></div><input name="k" placeholder="Approx. quantity (kg or boxes)" required><textarea name="m" rows="3" placeholder="Anything else we should know?"></textarea><button class="btn btn-m w-full">Send Quote Request on WhatsApp</button></form></div>
+ </div>
+</section>
+
+<!-- ABOUT -->
+<section class="page" id="p-about">
+ <div class="bg-m"><div class="max-w-7xl mx-auto px-4 py-12 text-center"><p class="text-g text-xs tracking-[.25em]">HOME / ABOUT US</p><h1 class="font-display text-4xl md:text-5xl font-bold text-white mt-2">Our <em class="text-g">Story</em></h1></div></div>
+ <div class="max-w-7xl mx-auto px-4 py-16 grid md:grid-cols-2 gap-12 items-center"><img data-img="1567337710282-00832b415979" alt="Our shop" class="w-full h-96 object-cover rounded-3xl shadow-xl"><div><h2 class="font-display text-3xl font-bold text-m-dark">From a small counter to a <em class="text-g-dark">family name</em></h2><p class="mt-4 text-sm text-stone-600 leading-relaxed">Gulfam began in 1990 as a single counter selling fresh milk and a handful of mithai. Every sweet was stirred by hand over slow flame, and customers returned because they could taste the difference.</p><p class="mt-3 text-sm text-stone-600 leading-relaxed">Today we make mithai, nimco, bakery, cakes and frozen snacks, but the promise is the same: pure ingredients, fresh batches, honest prices.</p></div></div>
+ <div class="bg-white py-14 border-y border-g-light"><div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center" id="stats"></div></div>
+ <div class="max-w-7xl mx-auto px-4 py-16 grid md:grid-cols-3 gap-6" id="mission"></div>
+ <div class="max-w-7xl mx-auto px-4 pb-16 grid md:grid-cols-2 gap-12 items-center"><div class="order-2 md:order-1"><h2 class="font-display text-3xl font-bold text-m-dark">How we <em class="text-g-dark">make it</em></h2><p class="mt-4 text-sm text-stone-600 leading-relaxed">Milk arrives from trusted farms each morning. It is boiled, reduced and set by hand in small batches by halwais with decades of experience. Nothing is made from powder and nothing is stored overnight.</p><a href="#mithai" class="btn btn-m mt-6">Explore Our Mithai</a></div><img data-img="1589301760014-d929f3979dbc" alt="Making mithai" class="order-1 md:order-2 w-full h-96 object-cover rounded-3xl shadow-xl"></div>
+</section>
+
+<!-- CONTACT -->
+<section class="page" id="p-contact">
+ <div class="bg-m"><div class="max-w-7xl mx-auto px-4 py-12 text-center"><p class="text-g text-xs tracking-[.25em]">HOME / CONTACT</p><h1 class="font-display text-4xl md:text-5xl font-bold text-white mt-2">Visit or <em class="text-g">Order</em></h1></div></div>
+ <div class="max-w-7xl mx-auto px-4 py-14 grid lg:grid-cols-2 gap-10">
+  <div class="space-y-4"><div class="bg-white rounded-2xl border border-g-light p-6 text-sm space-y-4"><p><b class="text-m block">Shop address</b>Main Boulevard, Gulfam Plaza, Karachi, Pakistan</p><p><b class="text-m block">Phone / WhatsApp</b><a href="tel:+923001234567">0300 1234567</a></p><p><b class="text-m block">Opening hours</b>Monday to Sunday, 8:00 AM to 11:00 PM</p><button class="btn btn-g wa">Order on WhatsApp</button></div>
+   <iframe title="Map" loading="lazy" class="w-full h-72 rounded-2xl border" src="https://maps.google.com/maps?q=Karachi,Pakistan&output=embed"></iframe></div>
+  <form id="cform" class="bg-white rounded-2xl border border-g-light p-6 md:p-8 space-y-4 self-start"><h2 class="font-display text-2xl font-bold text-m-dark">Send us a message</h2><input name="n" required placeholder="Your name"><input name="p" type="tel" required placeholder="Phone number"><textarea name="m" rows="5" required placeholder="Your message"></textarea><button class="btn btn-m w-full">Send via WhatsApp</button></form>
+ </div>
+</section>
+</main>
+
+<footer class="bg-m-dark text-white/80 text-sm"><div class="max-w-7xl mx-auto px-4 py-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+ <div><div class="flex items-center gap-2.5"><span class="w-10 h-10 rounded-lg bg-g grid place-items-center font-display text-2xl font-bold text-m-dark">G</span><span class="font-display text-xl font-bold text-g">Gulfam Sweets</span></div><p class="mt-4 leading-relaxed">Taste of Purity, Tradition of Sweetness. Royal mithai, bakery and fresh dairy since 1990.</p><div class="flex gap-2 mt-4"><a href="#" class="w-8 h-8 grid place-items-center rounded-full bg-g text-m-dark text-xs font-bold">f</a><a href="#" class="w-8 h-8 grid place-items-center rounded-full bg-g text-m-dark text-xs font-bold">ig</a><a href="#" class="w-8 h-8 grid place-items-center rounded-full bg-g text-m-dark text-xs font-bold">tt</a></div></div>
+ <div><b class="text-g">Shop</b><ul class="mt-4 space-y-2"><li><a href="#mithai">Mithai</a></li><li><a href="#nimco">Nimco</a></li><li><a href="#snacks">Fresh Snacks</a></li><li><a href="#frozen">Frozen Foods</a></li><li><a href="#bakery">Bakery</a></li><li><a href="#cakes">Cakes</a></li></ul></div>
+ <div><b class="text-g">Company</b><ul class="mt-4 space-y-2"><li><a href="#home">Home</a></li><li><a href="#about">About Us</a></li><li><a href="#wedding">Wedding &amp; Bulk</a></li><li><a href="#contact">Contact</a></li></ul></div>
+ <div><b class="text-g">Visit us</b><p class="mt-4 leading-relaxed">Main Boulevard, Gulfam Plaza<br>Karachi, Pakistan<br>0300 1234567<br>Daily 8 AM to 11 PM</p></div></div>
+ <p class="text-center text-xs py-5 border-t border-white/10">&copy; 2026 Gulfam Sweets &amp; Dairy. All rights reserved.</p></footer>
+
+<button class="wa fixed bottom-5 right-5 z-30 bg-[#25D366] text-white rounded-full px-5 py-3 shadow-xl text-sm font-semibold flex items-center gap-2 hover:brightness-105"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.200 14.100c-.2.6-1.300 1.200-1.800 1.200-.5.100-1 .2-3.300-.7-2.800-1.100-4.600-4-4.700-4.200-.1-.2-1.100-1.500-1.100-2.800s.7-2 1-2.200c.2-.3.500-.3.700-.3h.5c.2 0 .4 0 .6.500l.8 2c.1.200.1.300 0 .5l-.4.600c-.1.100-.3.300-.1.600.2.300.8 1.300 1.800 2.100 1.200 1 2.200 1.300 2.500 1.500.3.100.5.100.6-.1l.9-1.100c.2-.3.400-.2.600-.1l2 1c.3.100.5.200.5.300.100.100.100.700-.1 1.300z"/></svg><span class="hidden sm:inline">Instant WhatsApp Order</span></button>
+
+<aside id="drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col">
+ <div class="bg-m text-white px-6 py-4 flex justify-between items-center"><h3 class="font-display text-xl text-g font-bold">Your Order</h3><button id="closeCart" class="text-2xl" aria-label="Close">&times;</button></div>
+ <div id="cartList" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
+ <form id="chk" class="p-5 border-t border-g-light space-y-3 bg-cream max-h-[60vh] overflow-y-auto">
+  <div class="text-sm space-y-1"><div class="flex justify-between"><span>Subtotal</span><span id="sub"></span></div><div class="flex justify-between"><span>Delivery</span><span id="del"></span></div><div class="flex justify-between font-bold text-m text-base"><span>Total</span><span id="total"></span></div></div>
+  <input name="n" required placeholder="Full name"><input name="p" type="tel" required placeholder="Phone number"><textarea name="a" rows="2" required placeholder="Delivery address"></textarea><input name="d" type="date" title="Delivery date"><input name="o" placeholder="Notes (e.g. gift packing, message on cake)">
+  <button class="btn btn-g w-full">Place Order on WhatsApp</button><button type="button" id="clr" class="text-xs text-stone-500 w-full hover:text-m">Clear cart</button><p class="text-xs text-stone-500 text-center">Cash on Delivery. We confirm every order on WhatsApp.</p></form>
+</aside>
+<div id="ov" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+<div id="lb" class="fixed inset-0 bg-black/70 z-[60] items-center justify-center p-4"><div class="bg-white rounded-3xl max-w-3xl w-full grid md:grid-cols-2 overflow-hidden relative max-h-[90vh] overflow-y-auto"><button id="lbX" class="absolute top-3 right-4 text-3xl text-white md:text-m z-10" aria-label="Close">&times;</button><img id="lbImg" class="w-full h-64 md:h-full object-cover" alt=""><div id="lbBody" class="p-7 flex flex-col justify-center"></div></div></div>
+
+<script>
+const WA='923001234567'; // replace with your WhatsApp number (country code, no +)
+const U=i=>`https://images.unsplash.com/photo-${i}?auto=format&fit=crop&w=700&q=70`;
+const fb=n=>"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="700" height="525"><defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6B0F1A"/><stop offset="1" stop-color="#45090F"/></linearGradient></defs><rect width="700" height="525" fill="url(#a)"/><text x="350" y="270" font-family="serif" font-size="38" fill="#D4A62A" text-anchor="middle">${String(n).replace(/&/g,'and')}</text></svg>`);
+const W={kg:[['500 g',.5],['1 kg',1],['2 kg',2]],pc:[['6 pcs',.5],['12 pcs',1],['24 pcs',2]],lb:[['1 lb',1],['2 lb',1.95],['3 lb',2.9]],box:[['Small',1],['Medium',1.8],['Large',3.2]]};
+const DEF={kg:1,pc:1,lb:0,box:0};
+const C=[{id:'mithai',n:'Mithai',t:'Traditional Mithai',w:'kg',i:'1599599810769-bcde5a160d32',d:'Gulab jamun, ras malai, kaju katli and laddu made in pure desi ghee.'},
+{id:'nimco',n:'Nimco',t:'Nimco',w:'kg',i:'1601050690597-df0568f70950',d:'Crunchy, spiced savoury mixes for tea time and gifting.'},
+{id:'snacks',n:'Fresh Snacks',t:'Fresh Snacks',w:'pc',i:'1601050690117-94f5f6fa8bd7',d:'Samosas, rolls and patties fried fresh every afternoon.'},
+{id:'frozen',n:'Frozen Foods',t:'Frozen Foods',w:'pc',i:'1565557623262-b51c2513a641',d:'Ready-to-fry frozen favourites, packed in insulated bags.'},
+{id:'bakery',n:'Bakery',t:'Bakery',w:'kg',i:'1558961363-fa8fdf82db35',d:'Nan khatai, cookies and rusk baked fresh every morning.'},
+{id:'cakes',n:'Cakes',t:'Cakes',w:'lb',i:'1578985545062-69928b1d9587',d:'Celebration cakes baked to order. Add a message in your notes.'},
+{id:'wedding',n:'Wedding & Bulk',t:'Wedding & Bulk',w:'box',i:'1631452180519-c014fe946bc7',d:'Mithai thaals, dry-fruit hampers and bulk packs for big occasions.'}];
+const P=[['mithai','Shahi Gulab Jamun (Desi Ghee)','Soft khoya dumplings in cardamom syrup, fried in pure ghee.',1800,'Best Seller','1666190092159-3171cf0fbb12'],['mithai','Zafrani Ras Malai','Saffron milk with soft paneer discs and pistachio.',2200,'Chilled','1606313564200-e75d5e30476c'],['mithai','Silver Leaf Kaju Katli','Diamond-cut cashew fudge finished with edible silver.',3600,'Premium','1578985545062-69928b1d9587'],['mithai','Motichoor Laddu','Fine boondi pearls in ghee with saffron and nuts.',1700,'Festive','1610192244261-3f33de3f55e4'],
+['nimco','Crispy Mix Nimco','Gathiya, sev and peanuts with our house spice blend.',1200,'Fresh Batch','1601050690597-df0568f70950'],['nimco','Masala Daal Moth','Crunchy lentils tossed in tangy masala.',1100,'','1599490659213-e2b9527bd087'],['nimco','Chatpata Chana Daal','Roasted chana daal with lemon and chaat masala.',1000,'','1606491956689-2ea866880c84'],['nimco','Aloo Bhujia','Thin potato sev, light and extra crisp.',1150,'Bestseller','1630409351217-bc86ed6d1e7f'],
+['snacks','Chicken Samosa (Fresh)','Crisp pastry with spiced chicken filling.',720,'Hot & Fresh','1601050690117-94f5f6fa8bd7'],['snacks','Beef Roll','Juicy seasoned beef wrapped in golden crust.',900,'','1565557623262-b51c2513a641'],['snacks','Chicken Patties','Flaky layers with creamy chicken filling.',850,'Popular','1606755962773-d324e0a13086'],['snacks','Aloo Cutlet','Spiced potato cutlets, crumb-coated.',600,'Veg','1626132647523-66f5bf380027'],
+['frozen','Chicken Spring Rolls (Frozen)','Ready-to-fry rolls, packed at -18 C.',680,'Frozen','1544025162-d76694265947'],['frozen','Seekh Kabab (Frozen)','Hand-minced kabab on skewers, just grill or fry.',950,'Frozen','1529042410759-befb1204b468'],['frozen','Cheese Samosas (Frozen)','Mozzarella and cheddar in crisp pastry.',780,'Frozen','1601050690117-94f5f6fa8bd7'],['frozen','Crispy Nuggets (Frozen)','Golden chicken nuggets for quick meals.',850,'Frozen','1562967914-608f82629710'],
+['bakery','Nan Khatai','Melt-in-mouth cardamom shortbread.',1400,'Signature','1558961363-fa8fdf82db35'],['bakery','Almond Cookies','Buttery cookies studded with almonds.',1800,'','1499636136210-6f4ee915583e'],['bakery','Fruit Cake Rusk','Twice-baked rusk with candied fruit.',900,'','1509440159596-0249088772ff'],['bakery','Dry Fruit Biscuits','Crunchy biscuits with pistachio and cashew.',1600,'Premium','1590080875515-8a3a8dc5735e'],
+['cakes','Belgian Chocolate Fudge Cake','Layers of chocolate sponge with Belgian ganache.',2499,'Best Seller','1578985545062-69928b1d9587'],['cakes','Signature Red Velvet Cake','Classic red velvet with cream cheese frosting.',2699,'','1586788680434-30d324b2d46f'],['cakes','German Black Forest Cake','Whipped cream, morello cherries and chocolate shavings.',2399,'','1578985545062-69928b1d9587'],['cakes','Chaunsa Mango Gateau','Fresh chaunsa mango with light vanilla cream.',2299,'Seasonal','1565958011703-44f9829ba187'],
+['wedding','Wedding Mithai Box Set','Assorted mithai in a gold-foil gift box.',4500,'Wedding','1631452180519-c014fe946bc7'],['wedding','Dry Fruit Hamper','Almonds, pistachios, cashews and dates in a keepsake box.',6500,'Gifting','1599599810769-bcde5a160d32'],['wedding','Mehndi Thaal Assortment','Decorated thaal with mithai, nimco and fruit.',8500,'Mehndi','1589301760014-d929f3979dbc'],['wedding','Barat Bulk Mithai Pack','Bulk mithai tubs for large gatherings. Free delivery.',17000,'Bulk','1666190092159-3171cf0fbb12']].map((a,k)=>({id:k+1,c:a[0],n:a[1],d:a[2],p:a[3],tag:a[4],i:a[5],w:C.find(c=>c.id===a[0]).w}));
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],cat=id=>C.find(c=>c.id===id);
+const rs=n=>'Rs. '+Math.round(n).toLocaleString(),price=(x,wi)=>Math.round(x.p*W[x.w][wi][1]);
+const st=n=>{const r=4+(n*7%10)/10*1;return '&#9733;'.repeat(Math.round(r))+` <span class="text-stone-400">(${12+n*17%90})</span>`};
+let cart=[],wish=[];try{cart=JSON.parse(localStorage.getItem('gulfam-cart2'))||[];wish=JSON.parse(localStorage.getItem('gulfam-wish'))||[]}catch(e){}
+const imgTag=(x,c='')=>`<img src="${U(x.i)}" alt="${x.n}" loading="lazy" onerror="this.onerror=null;this.src=fb(this.alt)" class="${c}">`;
+const chips=x=>W[x.w].map((w,k)=>`<button type="button" data-w="${k}" class="wc ${k===DEF[x.w]?'on':''}">${w[0]}</button>`).join('');
+const card=x=>`<article class="pc" data-id="${x.id}"><div class="relative aspect-[4/3] overflow-hidden bg-m-soft"><button class="block w-full h-full" data-open="${x.id}" aria-label="View ${x.n}">${imgTag(x,'w-full h-full object-cover')}</button>${x.tag?`<span class="tag">${x.tag}</span>`:''}<button data-heart="${x.id}" aria-label="Wishlist" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 grid place-items-center ${wish.includes(x.id)?'text-m':'text-stone-400'}">&#9829;</button></div>
+<div class="p-4 flex flex-col flex-1"><p class="text-[10px] tracking-widest text-g-dark font-semibold uppercase">${cat(x.c).n}</p><h3 class="font-display font-bold text-m-dark mt-1 leading-snug">${x.n}</h3><p class="text-xs text-g mt-1">${st(x.id)}</p><p class="text-xs text-stone-500 mt-1.5 clamp">${x.d}</p><div class="flex flex-wrap gap-1.5 mt-3">${chips(x)}</div>
+<div class="mt-auto pt-4 flex items-center justify-between gap-2"><span class="font-bold text-m pp">${rs(price(x,DEF[x.w]))}</span><button data-add="${x.id}" class="btn btn-m !py-2 !px-4 !text-xs">Add to Cart</button></div></div></article>`;
+// static content
+$('#feat').innerHTML=[['Fast &amp; Chilled Delivery','Fresh and frozen, carefully packed'],['100% Pure Desi Ghee','No refined oils, ever'],['Fresh Daily Batch','Made every morning'],['Halal &amp; Quality Checked','Hygienic kitchen standards']].map(f=>`<div class="bg-white border border-g-light rounded-xl px-4 py-3"><b class="text-m block">${f[0]}</b><span class="text-stone-500">${f[1]}</span></div>`).join('');
+$('#circles').innerHTML=C.map(c=>`<a href="#${c.id}" class="cc text-center shrink-0 w-24 md:w-28"><div class="ring rounded-full aspect-square overflow-hidden bg-white"><img src="${U(c.i)}" alt="${c.n}" onerror="this.onerror=null;this.src=fb(this.alt)" class="w-full h-full object-cover rounded-full"></div><p class="mt-3 text-sm font-medium text-m-dark">${c.n}</p></a>`).join('');
+$('#testi').innerHTML=[['Ayesha K.','The gulab jamuns taste exactly like my nani made. We order every Eid.'],['Bilal R.','Frozen samosas arrive perfectly packed and fry up crisp. Great value.'],['Sana M.','Ordered wedding boxes for 200 guests. Beautiful packing and everyone asked where they were from.']].map(t=>`<div class="bg-white rounded-2xl border border-g-light p-6"><div class="text-g">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="text-sm text-stone-600 mt-2 leading-relaxed">${t[1]}</p><p class="font-display font-bold text-m mt-4">${t[0]}</p></div>`).join('');
+$('#stats').innerHTML=[['1990','Serving since'],['7','Product categories'],['50,000+','Happy customers'],['100%','Pure desi ghee']].map(s=>`<div><p class="font-display text-4xl font-bold text-m">${s[0]}</p><p class="text-sm text-stone-500 mt-1">${s[1]}</p></div>`).join('');
+$('#mission').innerHTML=[['Our mission','Make every celebration sweeter with honest, handmade mithai and dairy.'],['Quality promise','Pure desi ghee, fresh milk, no artificial colours or preservatives.'],['Our people','Master halwais with 20+ years of experience, backed by a caring team.']].map(m=>`<div class="bg-white rounded-2xl border border-g-light p-7 border-t-4 !border-t-g"><h3 class="font-display text-xl font-bold text-m">${m[0]}</h3><p class="text-sm text-stone-600 mt-2 leading-relaxed">${m[1]}</p></div>`).join('');
+$$('img[data-img]').forEach(g=>{g.src=U(g.dataset.img);g.onerror=()=>{g.onerror=null;g.src=fb('Gulfam')}});
+// home catalog
+const hs={c:'all',q:''};
+$('#pills').innerHTML=[{id:'all',n:'All Delicacies'},...C].map(c=>`<button class="pill ${c.id==='all'?'on':''}" data-pill="${c.id}">${c.n}</button>`).join('');
+function home(){const q=hs.q.toLowerCase().trim();let l=P.filter(x=>(hs.c==='all'||x.c===hs.c)&&(x.n+x.d).toLowerCase().includes(q));if(hs.c==='all'&&!q)l=[1,2,3,9,17,21,13,25].map(i=>P.find(x=>x.id===i));
+ $$('#pills .pill').forEach(p=>p.classList.toggle('on',p.dataset.pill===hs.c));$('#hgrid').innerHTML=l.map(card).join('');$('#hnone').classList.toggle('hidden',l.length>0)}
+$('#pills').onclick=e=>{const b=e.target.closest('[data-pill]');if(b){hs.c=b.dataset.pill;home()}};$('#hq').oninput=e=>{hs.q=e.target.value;home()};
+// shop page
+const ss={c:'mithai',q:'',s:''};
+function shop(){const c=ss.c==='all'?{n:'All Delicacies',d:'Everything fresh from the Gulfam kitchen, in one place.'}:cat(ss.c),q=ss.q.toLowerCase().trim();
+ let l=P.filter(x=>(ss.c==='all'||x.c===ss.c)&&(x.n+x.d).toLowerCase().includes(q));
+ if(ss.s==='lo')l.sort((a,b)=>a.p-b.p);if(ss.s==='hi')l.sort((a,b)=>b.p-a.p);if(ss.s==='az')l.sort((a,b)=>a.n.localeCompare(b.n));
+ $('#shTitle').textContent=c.n;$('#shDesc').textContent=c.d;$('#shCrumb').textContent='HOME / '+c.n.toUpperCase();$('#sq').value=ss.q;
+ $('#rc').textContent=l.length+' items';$('#grid').innerHTML=l.map(card).join('');$('#none').classList.toggle('hidden',l.length>0);
+ const n=$('#note');n.classList.toggle('hidden',ss.c!=='frozen');n.textContent='Frozen items are delivered in insulated, temperature-controlled packaging. Please keep refrigerated at -18 C on arrival.';
+ $('#bulk').classList.toggle('hidden',ss.c!=='wedding');$('#bulk').classList.toggle('grid',ss.c==='wedding')}
+$('#sq').oninput=e=>{ss.q=e.target.value;shop()};$('#sort').onchange=e=>{ss.s=e.target.value;shop()};
+$('#sBtn').onclick=()=>{$('#sbar').classList.toggle('open');$('#q').focus()};
+$('#sf').onsubmit=e=>{e.preventDefault();ss.q=$('#q').value;ss.keep=true;$('#sbar').classList.remove('open');if(location.hash==='#all'){shop()}else location.hash='#all'};
+// cart
+const save=()=>{try{localStorage.setItem('gulfam-cart2',JSON.stringify(cart));localStorage.setItem('gulfam-wish',JSON.stringify(wish))}catch(e){}};
+const toast=m=>{const t=document.createElement('div');t.textContent=m;t.className='fixed bottom-24 left-1/2 -translate-x-1/2 bg-m text-g px-6 py-3 rounded-full z-[70] shadow-xl text-sm';document.body.append(t);setTimeout(()=>t.remove(),1600)};
+const add=(id,wi)=>{const k=id+'-'+wi,f=cart.find(c=>c.k===k);f?f.q++:cart.push({k,id,wi,q:1});draw();toast('Added to your order')};
+const totals=()=>{const sub=cart.reduce((a,c)=>{const x=P.find(p=>p.id===c.id);return a+price(x,c.wi)*c.q},0),del=!sub?0:(sub>=3000?0:250);return{sub,del,tot:sub+del}};
+function draw(){save();const t=totals();$('#cnt').textContent=cart.reduce((a,c)=>a+c.q,0);$('#hTot').textContent=rs(t.sub);$('#sub').textContent=rs(t.sub);$('#del').textContent=t.sub?(t.del?rs(t.del):'Free'):'-';$('#total').textContent=rs(t.tot);
+ $('#cartList').innerHTML=cart.length?cart.map(c=>{const x=P.find(p=>p.id===c.id);return `<div class="flex gap-3 items-center border-b border-g-light pb-4">${imgTag(x,'w-16 h-16 object-cover rounded-xl')}<div class="flex-1"><p class="font-medium text-sm leading-tight">${x.n}</p><p class="text-xs text-stone-500">${W[x.w][c.wi][0]} &middot; ${rs(price(x,c.wi))}</p><div class="flex items-center gap-2 mt-1.5"><button data-q="${c.k},-1" class="w-6 h-6 rounded-full border border-g">-</button><span class="text-sm w-5 text-center">${c.q}</span><button data-q="${c.k},1" class="w-6 h-6 rounded-full border border-g">+</button></div></div><button data-rm="${c.k}" class="text-stone-400 hover:text-m text-xl" aria-label="Remove">&times;</button></div>`}).join(''):'<p class="text-center text-stone-500 mt-12">Your cart is empty.<br><a href="#mithai" class="text-m font-semibold underline" data-close>Browse mithai</a></p>'}
+const open=o=>{$('#drawer').classList.toggle('open',o);$('#ov').classList.toggle('hidden',!o)};
+$('#cartBtn').onclick=()=>open(true);$('#closeCart').onclick=$('#ov').onclick=()=>open(false);
+$('#cartList').onclick=e=>{if(e.target.closest('[data-close]'))open(false);const q=e.target.closest('[data-q]'),r=e.target.closest('[data-rm]');if(q){const[k,d]=q.dataset.q.split(','),c=cart.find(c=>c.k===k);c.q+=+d;if(c.q<1)cart=cart.filter(z=>z!==c)}if(r)cart=cart.filter(c=>c.k!==r.dataset.rm);draw()};
+$('#clr').onclick=()=>{cart=[];draw()};
+const wa=m=>window.open(`https://wa.me/${WA}?text=${encodeURIComponent(m)}`,'_blank');
+$$('.wa').forEach(b=>b.onclick=()=>cart.length?open(true):wa('Assalam o Alaikum! I would like to place an order at Gulfam Sweets & Dairy.'));
+$('#chk').onsubmit=e=>{e.preventDefault();if(!cart.length)return toast('Your cart is empty');const f=e.target,t=totals();let m=`New order - Gulfam Sweets & Dairy\n\nName: ${f.elements.n.value}\nPhone: ${f.elements.p.value}\nAddress: ${f.elements.a.value}\n${f.elements.d.value?'Delivery date: '+f.elements.d.value+'\n':''}${f.elements.o.value?'Notes: '+f.elements.o.value+'\n':''}\nItems:\n`;
+ cart.forEach(c=>{const x=P.find(p=>p.id===c.id);m+=`- ${x.n} (${W[x.w][c.wi][0]}) x ${c.q} = ${rs(price(x,c.wi)*c.q)}\n`});m+=`\nSubtotal: ${rs(t.sub)}\nDelivery: ${t.del?rs(t.del):'Free'}\nTotal: ${rs(t.tot)} (Cash on Delivery)`;wa(m);cart=[];f.reset();draw();open(false);toast('Order sent. We will confirm on WhatsApp.')};
+$('#cform').onsubmit=e=>{e.preventDefault();const f=e.target;wa(`Name: ${f.elements.n.value}\nPhone: ${f.elements.p.value}\n\n${f.elements.m.value}`);f.reset()};
+$('#bform').onsubmit=e=>{e.preventDefault();const f=e.target;wa(`Bulk quote request - Gulfam\n\nName: ${f.elements.n.value}\nPhone: ${f.elements.p.value}\nEvent: ${f.elements.e.value}\nDate: ${f.elements.d.value}\nQuantity: ${f.elements.k.value}\n\n${f.elements.m.value}`);f.reset()};
+// global clicks: weight chips, add, heart, lightbox
+let cur;function body(x){return `<div class="pcard pc !border-0 !shadow-none" data-id="${x.id}"><p class="text-[10px] tracking-widest text-g-dark font-semibold uppercase">${cat(x.c).n}</p><h3 class="font-display text-2xl font-bold text-m-dark mt-1">${x.n}</h3><p class="text-g text-sm mt-1">${st(x.id)}</p><p class="text-sm text-stone-600 mt-3 leading-relaxed">${x.d} Made fresh, packed with care.</p><div class="flex flex-wrap gap-1.5 mt-4">${chips(x)}</div><div class="flex items-center justify-between mt-6"><span class="font-bold text-m text-2xl pp">${rs(price(x,DEF[x.w]))}</span><button data-add="${x.id}" data-lb class="btn btn-m">Add to Cart</button></div></div>`}
+document.addEventListener('click',e=>{const w=e.target.closest('[data-w]'),a=e.target.closest('[data-add]'),o=e.target.closest('[data-open]'),h=e.target.closest('[data-heart]');
+ if(w){const box=w.closest('[data-id]'),x=P.find(p=>p.id===+box.dataset.id);box.querySelectorAll('[data-w]').forEach(b=>b.classList.toggle('on',b===w));box.querySelector('.pp').textContent=rs(price(x,+w.dataset.w))}
+ if(a){const box=a.closest('[data-id]'),on=box.querySelector('[data-w].on');add(+a.dataset.add,on?+on.dataset.w:0);if(a.dataset.lb!==undefined)$('#lb').classList.remove('open')}
+ if(h){const id=+h.dataset.heart;wish=wish.includes(id)?wish.filter(z=>z!==id):[...wish,id];save();h.classList.toggle('text-m');h.classList.toggle('text-stone-400');toast(wish.includes(id)?'Saved to wishlist':'Removed from wishlist')}
+ if(o){cur=P.find(x=>x.id===+o.dataset.open);$('#lbImg').src=U(cur.i);$('#lbImg').alt=cur.n;$('#lbImg').onerror=function(){this.onerror=null;this.src=fb(this.alt)};$('#lbBody').innerHTML=body(cur);$('#lb').classList.add('open')}});
+$('#lbX').onclick=()=>$('#lb').classList.remove('open');$('#lb').onclick=e=>{if(e.target.id==='lb')$('#lb').classList.remove('open')};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#lb').classList.remove('open');open(false)}});
+$('#burger').onclick=()=>$('#mnav').classList.toggle('open');
+// router
+function route(){const h=(location.hash||'#home').slice(1),shops=[...C.map(c=>c.id),'all'],pg=['home','about','contact',...shops].includes(h)?h:'home',isShop=shops.includes(pg);
+ if(isShop){if(ss.c!==pg){ss.s='';$('#sort').value=''}if(!ss.keep)ss.q='';ss.keep=false;ss.c=pg;shop()}else if(pg==='home')home();
+ $$('.page').forEach(p=>p.classList.toggle('active',p.id==='p-'+(isShop?'shop':pg)));
+ $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.n===pg));$('#mnav').classList.remove('open');scrollTo(0,0)}
+addEventListener('hashchange',route);
+draw();route();
+</script>
+</body>
+</html>
