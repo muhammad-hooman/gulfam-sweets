@@ -30,6 +30,18 @@ function mapDatabaseProduct(row) {
       return byWeight || String(a.name).localeCompare(String(b.name));
     });
 
+  const basePrice = Number(row.base_price) > 0 ? Number(row.base_price) : (legacyProduct?.p ? Number(legacyProduct.p) : 0);
+  const resolvedVariants = variants.length > 0 ? variants : (
+    basePrice > 0 ? [{
+      id: null,
+      product_id: row.id,
+      name: 'Standard',
+      price: basePrice,
+      is_available: true,
+      stock_quantity: 100,
+    }] : []
+  );
+
   return {
     ...legacyProduct,
     id: legacyProduct?.id ?? row.legacy_id ?? row.id,
@@ -40,16 +52,16 @@ function mapDatabaseProduct(row) {
     categoryPath: staticCategory?.path || (canonicalSlug ? `/category/${canonicalSlug}` : '/'),
     n: row.name,
     d: row.description || '',
-    p: Number(row.base_price || 0),
+    p: basePrice,
     salePrice: row.sale_price == null ? null : Number(row.sale_price),
     tag: row.is_featured ? 'Featured' : legacyProduct?.tag || '',
     i: images[0]?.public_url || row.image_url || legacyProduct?.i || '',
-    w: variants[0]?.weight_unit === 'piece' ? 'pc' : variants[0]?.weight_unit || legacyProduct?.w || 'kg',
+    w: resolvedVariants[0]?.weight_unit === 'piece' ? 'pc' : resolvedVariants[0]?.weight_unit || legacyProduct?.w || 'kg',
     ingredients: row.ingredients || legacyProduct?.ingredients || '',
     shelfLife: row.storage_instructions || legacyProduct?.shelfLife || '',
     sku: row.sku || legacyProduct?.sku || '',
-    inStock: variants.some((variant) => Number(variant.stock_quantity) > 0),
-    variants,
+    inStock: resolvedVariants.length ? resolvedVariants.some((variant) => Number(variant.stock_quantity) > 0) : true,
+    variants: resolvedVariants,
     isDatabaseProduct: true,
   };
 }

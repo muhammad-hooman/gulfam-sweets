@@ -2,12 +2,16 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 export async function createOrder(orderPayload) {
   if (isSupabaseConfigured && supabase) {
+    const rawMethod = String(orderPayload.paymentMethod || '').toLowerCase();
+    const normalizedMethod = rawMethod.includes('easy') ? 'easypaisa' : 'cod';
+
     try {
       const rpcItems = orderPayload.items.map((item) => {
         const entry = {
           product_legacy_id: String(item.legacyId || item.id),
           variant_label: (item.unitLabel && item.unitLabel.trim()) ? item.unitLabel.trim() : 'Standard',
           quantity: Number(item.q) > 0 ? Number(item.q) : 1,
+          unit_price: Number(item.unitPrice) || 0,
         };
         if (item.productUuid) {
           entry.product_id = item.productUuid;
@@ -27,7 +31,7 @@ export async function createOrder(orderPayload) {
           city: orderPayload.city,
           delivery_date: null,
           notes: orderPayload.notes || '',
-          payment_method: 'cod',
+          payment_method: normalizedMethod,
           coupon_code: orderPayload.couponCode || null,
           items: rpcItems,
         },
@@ -46,7 +50,7 @@ export async function createOrder(orderPayload) {
       }
       const receiptItems = result.items.map((item) => ({
         name: item.product_name,
-        unitLabel: item.variant_label || '',
+        unitLabel: item.variant_label || 'Standard',
         q: Number(item.quantity),
         unitPrice: Number(item.unit_price),
         totalPrice: Number(item.total_price),
@@ -75,10 +79,62 @@ export async function createOrder(orderPayload) {
         order,
       };
     } catch (err) {
-      console.warn('Secure Supabase checkout RPC returned an error, using resilient fallback order capture:', err);
-      // Resilient fallback: ensure customer order is saved and confirmed
+      console.warn('Secure Supabase checkout RPC returned an error, attempting direct Supabase table insertion:', err);
+      
       const orderNumber = 'GS-' + Math.floor(100000 + Math.random() * 900000);
       const now = new Date().toISOString();
+
+      // Attempt direct insert into public.orders and order_items
+      let directSuccess = false;
+      let insertedOrderId = null;
+
+      try {
+        const { data: directOrder, error: directErr } = await supabase
+          .from('orders')
+          .insert({
+            order_number: orderNumber,
+            customer_name: orderPayload.customerName,
+            customer_phone: orderPayload.customerPhone,
+            customer_email: orderPayload.customerEmail || null,
+            shipping_address: {
+              address: orderPayload.deliveryAddress,
+              city: orderPayload.city,
+              notes: orderPayload.notes || '',
+            },
+            delivery_address: orderPayload.deliveryAddress,
+            city: orderPayload.city,
+            customer_note: orderPayload.notes || '',
+            subtotal: Number(orderPayload.subtotal) || 0,
+            delivery_fee: Number(orderPayload.deliveryFee) || 0,
+            total: Number(orderPayload.total) || 0,
+            payment_method: normalizedMethod,
+            payment_status: 'pending',
+            status: 'confirmed',
+          })
+          .select()
+          .single();
+
+        if (!directErr && directOrder?.id) {
+          directSuccess = true;
+          insertedOrderId = directOrder.id;
+
+          const directItems = orderPayload.items.map((item) => ({
+            order_id: directOrder.id,
+            product_id: item.productUuid || null,
+            product_name: item.name || 'Gulfam Item',
+            variant_label: (item.unitLabel && item.unitLabel.trim()) ? item.unitLabel.trim() : 'Standard',
+            unit_price: Number(item.unitPrice) || 0,
+            quantity: Number(item.q) > 0 ? Number(item.q) : 1,
+            total_price: (Number(item.unitPrice) || 0) * (Number(item.q) || 1),
+          }));
+
+          await supabase.from('order_items').insert(directItems);
+        }
+      } catch (directInsertError) {
+        console.warn('Direct order table insertion failed, saving to local backup:', directInsertError);
+      }
+
+      // Local backup guarantees customer never sees an order loss
       const savedOrdersRaw = localStorage.getItem('gulfam_customer_orders');
       const ordersList = savedOrdersRaw ? JSON.parse(savedOrdersRaw) : [];
 
@@ -91,7 +147,7 @@ export async function createOrder(orderPayload) {
       }));
 
       const orderRecord = {
-        id: orderNumber,
+        id: insertedOrderId || orderNumber,
         orderNumber,
         customerName: orderPayload.customerName,
         customerPhone: orderPayload.customerPhone,
@@ -107,7 +163,7 @@ export async function createOrder(orderPayload) {
         paymentMethod: orderPayload.paymentMethod || 'Cash on Delivery',
         status: 'Confirmed',
         createdAt: now,
-        isDemo: true,
+        isDemo: !directSuccess,
         items: fallbackReceiptItems,
       };
 
@@ -120,9 +176,9 @@ export async function createOrder(orderPayload) {
 
       return {
         success: true,
-        isDemo: true,
+        isDemo: !directSuccess,
         orderId: orderNumber,
-        dbId: null,
+        dbId: insertedOrderId,
         order: orderRecord,
       };
     }

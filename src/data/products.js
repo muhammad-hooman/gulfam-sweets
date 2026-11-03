@@ -200,10 +200,14 @@ export const getDefaultWeightIndex = (product) => {
 export const getProductWeights = (product) => {
   if (!product) return [['Standard', 1]];
   if (product.variants?.length) {
-    const list = product.variants.map((variant) => [
-      variant.name || `${variant.weight_value || ''} ${variant.weight_unit || ''}`.trim() || 'Standard',
-      1,
-    ]);
+    const list = product.variants
+      .filter(Boolean)
+      .map((variant) => [
+        (variant.name && variant.name.trim()) ||
+          `${variant.weight_value || ''} ${variant.weight_unit || ''}`.trim() ||
+          'Standard',
+        1,
+      ]);
     if (list.length > 0) return list;
   }
   const units = WEIGHT_UNITS[product.w];

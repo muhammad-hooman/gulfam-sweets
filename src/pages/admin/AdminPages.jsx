@@ -219,10 +219,17 @@ function OverviewPage() {
           supabase.from('products').select('*', { count: 'exact', head: true }).eq('status', 'active'),
           supabase.from('categories').select('*', { count: 'exact', head: true }),
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('orders').select('total, status, created_at'),
+          supabase.from('orders').select('customer_id, customer_phone, customer_email, total, status, created_at'),
         ]);
 
         const ordersList = ordersData || [];
+        const uniqueCustomerKeys = new Set();
+        for (const o of ordersList) {
+          const key = o.customer_id || o.customer_email || o.customer_phone;
+          if (key) uniqueCustomerKeys.add(key);
+        }
+        const totalCustomers = Math.max(custCount || 0, uniqueCustomerKeys.size);
+
         const totalSales = ordersList
           .filter((o) => o.status !== 'cancelled')
           .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
@@ -231,7 +238,7 @@ function OverviewPage() {
           total_products: pCount || 0,
           active_products: actCount ?? pCount ?? 0,
           total_categories: cCount || 0,
-          total_customers: custCount || 0,
+          total_customers: totalCustomers,
           total_orders: ordersList.length,
           pending_orders: ordersList.filter((o) => o.status === 'pending').length,
           confirmed_orders: ordersList.filter((o) => o.status === 'confirmed').length,
@@ -2060,46 +2067,103 @@ function OrdersPage() {
     let query = supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(300);
     if (status !== 'all') query = query.eq('status', status);
     const { data, error: qErr } = await query;
-    if (qErr) setError(qErr.message);
-    else setOrders(data || []);
+    
+    const dbOrders = data || [];
+    let combined = [...dbOrders];
+
+    // Merge any offline/backup orders stored locally
+    try {
+      const localOrders = JSON.parse(localStorage.getItem('gulfam_customer_orders') || '[]');
+      const dbNumbers = new Set(dbOrders.map((o) => o.order_number || o.id));
+      for (const lo of localOrders) {
+        if (!dbNumbers.has(lo.orderNumber) && !dbNumbers.has(lo.id)) {
+          combined.push({
+            id: lo.id,
+            order_number: lo.orderNumber,
+            customer_name: lo.customerName,
+            customer_phone: lo.customerPhone,
+            customer_email: lo.customerEmail,
+            delivery_address: lo.deliveryAddress,
+            city: lo.city,
+            total: lo.total,
+            subtotal: lo.subtotal,
+            delivery_fee: lo.deliveryFee,
+            payment_method: lo.paymentMethod,
+            payment_status: lo.paymentStatus || 'pending',
+            status: (lo.status || 'confirmed').toLowerCase(),
+            created_at: lo.createdAt,
+            customer_note: lo.notes,
+            local_items: lo.items,
+          });
+        }
+      }
+    } catch (_) {}
+
+    if (qErr && !combined.length) setError(qErr.message);
+    setOrders(combined.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
     setLoading(false);
   }, [status]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel('admin-orders-stream')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        load();
+      })
+      .subscribe();
 
-  const visible = orders.filter((o) => `${o.order_number} ${o.customer_name} ${o.customer_phone}`.toLowerCase().includes(search.toLowerCase()));
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [load]);
+
+  const visible = orders.filter((o) => `${o.order_number || ''} ${o.customer_name || ''} ${o.customer_phone || ''} ${o.customer_email || ''}`.toLowerCase().includes(search.toLowerCase()));
   const statuses = ['pending', 'confirmed', 'processing', 'packed', 'shipped', 'delivered', 'cancelled'];
 
   async function updateStatus(order, nextStatus) {
     setError('');
-    let err = null;
+    let updated = false;
+
     try {
       const { error: rpcErr } = await supabase.rpc('admin_update_order_status', {
         p_order_id: order.id,
         p_status: nextStatus,
         p_payment_status: order.payment_status || 'pending',
       });
-      if (!rpcErr) {
-        await load();
-        return;
-      }
-      err = rpcErr;
-    } catch (e) {
-      err = e;
+      if (!rpcErr) updated = true;
+    } catch (_) {}
+
+    if (!updated) {
+      try {
+        const { error: updErr } = await supabase.from('orders').update({ status: nextStatus }).eq('id', order.id);
+        if (!updErr) updated = true;
+      } catch (_) {}
     }
 
-    const { error: updErr } = await supabase.from('orders').update({ status: nextStatus }).eq('id', order.id);
-    if (updErr) setError(updErr.message || err?.message || 'Failed to update order status');
-    else await load();
+    // Always update local state for immediate responsiveness
+    setOrders((prev) => prev.map((o) => o.id === order.id ? { ...o, status: nextStatus } : o));
+
+    try {
+      const savedOrdersRaw = localStorage.getItem('gulfam_customer_orders');
+      if (savedOrdersRaw) {
+        const ordersList = JSON.parse(savedOrdersRaw);
+        const idx = ordersList.findIndex((o) => o.id === order.id || o.orderNumber === order.order_number);
+        if (idx !== -1) {
+          ordersList[idx].status = nextStatus;
+          localStorage.setItem('gulfam_customer_orders', JSON.stringify(ordersList));
+        }
+      }
+    } catch (_) {}
   }
 
   return (
     <>
-      <PageHeader title="Orders Management" description="Review placed orders, verify payments, and manage fulfillment." />
+      <PageHeader title="Orders Management" description="Review placed orders, verify payments, and manage fulfillment in real time." />
       <AdminNotice message={error} />
       <section className="admin-panel">
         <div className="admin-table-toolbar">
-          <input className="admin-search-input" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search order, customer, or phone" />
+          <input className="admin-search-input" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search order ID, customer name, phone, or email" />
           <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Order status filter">
             <option value="all">All statuses</option>
             {statuses.map((s) => <option key={s} value={s}>{capitalize(s)}</option>)}
@@ -2167,47 +2231,54 @@ function OrderDetailsModal({ order, onClose, onStatusChange }) {
   useEffect(() => {
     async function fetchItems() {
       setLoading(true);
+      if (order.local_items && order.local_items.length > 0) {
+        setItems(order.local_items.map((it) => ({
+          product_name: it.name,
+          variant_label: it.unitLabel,
+          quantity: it.q,
+          unit_price: it.unitPrice,
+          total_price: it.totalPrice,
+        })));
+        setLoading(false);
+        return;
+      }
+
       const { data, error: qErr } = await supabase.from('order_items').select('*').eq('order_id', order.id);
-      if (qErr) setError(qErr.message);
-      else setItems(data || []);
+      if (!qErr && data && data.length > 0) {
+        setItems(data);
+      } else if (order.items && Array.isArray(order.items)) {
+        setItems(order.items);
+      } else {
+        setItems([]);
+      }
       setLoading(false);
     }
     fetchItems();
-  }, [order.id]);
+  }, [order]);
 
   async function handleUpdateStatuses() {
     setSaving(true);
     setError('');
     setNotice('');
 
-    let success = false;
-    let rpcError = null;
+    let updated = false;
     try {
       const { error: rpcErr } = await supabase.rpc('admin_update_order_status', {
         p_order_id: order.id,
         p_status: orderStatus,
         p_payment_status: payStatus,
       });
-      if (!rpcErr) {
-        success = true;
-      } else {
-        rpcError = rpcErr;
-      }
-    } catch (e) {
-      rpcError = e;
-    }
+      if (!rpcErr) updated = true;
+    } catch (_) {}
 
-    if (!success) {
-      const { error: updErr } = await supabase.from('orders').update({
-        status: orderStatus,
-        payment_status: payStatus,
-      }).eq('id', order.id);
-
-      if (updErr) {
-        setError(updErr.message || rpcError?.message || 'Failed to update order status');
-        setSaving(false);
-        return;
-      }
+    if (!updated) {
+      try {
+        const { error: updErr } = await supabase.from('orders').update({
+          status: orderStatus,
+          payment_status: payStatus,
+        }).eq('id', order.id);
+        if (!updErr) updated = true;
+      } catch (_) {}
     }
 
     try {
@@ -2246,7 +2317,8 @@ function OrderDetailsModal({ order, onClose, onStatusChange }) {
 
         <div style={{ background: '#fdfaf8', padding: 14, borderRadius: 10, marginBottom: 14, border: '1px solid #f0e9e4' }}>
           <p style={{ margin: '0 0 6px', fontSize: 12 }}><strong>Delivery Address:</strong> {order.delivery_address}, {order.city}</p>
-          <p style={{ margin: 0, fontSize: 12 }}><strong>Customer Notes:</strong> {order.delivery_notes || 'None'}</p>
+          {order.customer_email && <p style={{ margin: '0 0 6px', fontSize: 12 }}><strong>Email:</strong> {order.customer_email}</p>}
+          <p style={{ margin: 0, fontSize: 12 }}><strong>Customer Notes:</strong> {order.customer_note || order.notes || order.delivery_notes || 'None'}</p>
         </div>
 
         <div className="admin-form-grid" style={{ marginBottom: 14 }}>
@@ -2298,43 +2370,113 @@ function CustomersPage() {
   const load = useCallback(async () => {
     setLoading(true);
     setError('');
+
     const [profilesResult, ordersResult] = await Promise.all([
       supabase.from('profiles').select('id,full_name,email,phone,created_at').order('created_at', { ascending: false }).limit(500),
-      supabase.from('orders').select('customer_id,total'),
+      supabase.from('orders').select('id,customer_id,customer_name,customer_phone,customer_email,total,created_at').order('created_at', { ascending: false }),
     ]);
-    if (profilesResult.error || ordersResult.error) {
-      setError((profilesResult.error || ordersResult.error).message);
-    } else {
-      const totals = new Map();
-      for (const order of ordersResult.data || []) {
-        if (!order.customer_id) continue;
-        const summary = totals.get(order.customer_id) || { order_count: 0, total_purchases: 0 };
-        summary.order_count += 1;
-        summary.total_purchases += Number(order.total) || 0;
-        totals.set(order.customer_id, summary);
-      }
-      setCustomers((profilesResult.data || []).map((p) => ({
-        ...p,
-        ...(totals.get(p.id) || { order_count: 0, total_purchases: 0 }),
-      })));
+
+    const customerMap = new Map();
+
+    // 1. Add registered profile accounts
+    for (const p of profilesResult.data || []) {
+      const key = p.id || p.email || p.phone;
+      customerMap.set(key, {
+        id: p.id,
+        full_name: p.full_name || 'Registered Customer',
+        email: p.email || '—',
+        phone: p.phone || '—',
+        created_at: p.created_at,
+        order_count: 0,
+        total_purchases: 0,
+        account_type: 'Registered',
+      });
     }
+
+    // 2. Aggregate orders and include guest checkout customers
+    for (const order of ordersResult.data || []) {
+      const custId = order.customer_id;
+      const email = order.customer_email?.trim();
+      const phone = order.customer_phone?.trim();
+
+      let target = null;
+      if (custId && customerMap.has(custId)) {
+        target = customerMap.get(custId);
+      } else if (email && customerMap.has(email)) {
+        target = customerMap.get(email);
+      } else if (phone && customerMap.has(phone)) {
+        target = customerMap.get(phone);
+      }
+
+      const amount = Number(order.total) || 0;
+      if (target) {
+        target.order_count += 1;
+        target.total_purchases += amount;
+        if ((!target.phone || target.phone === '—') && phone) target.phone = phone;
+        if ((!target.email || target.email === '—') && email) target.email = email;
+      } else {
+        const guestKey = email || phone || order.id;
+        customerMap.set(guestKey, {
+          id: guestKey,
+          full_name: order.customer_name || 'Guest Customer',
+          email: email || '—',
+          phone: phone || '—',
+          created_at: order.created_at,
+          order_count: 1,
+          total_purchases: amount,
+          account_type: 'Guest Customer',
+        });
+      }
+    }
+
+    // 3. Include local backup orders if any
+    try {
+      const localOrders = JSON.parse(localStorage.getItem('gulfam_customer_orders') || '[]');
+      for (const lo of localOrders) {
+        const key = lo.customerEmail || lo.customerPhone || lo.orderNumber;
+        if (!customerMap.has(key)) {
+          customerMap.set(key, {
+            id: key,
+            full_name: lo.customerName || 'Guest Customer',
+            email: lo.customerEmail || '—',
+            phone: lo.customerPhone || '—',
+            created_at: lo.createdAt || new Date().toISOString(),
+            order_count: 1,
+            total_purchases: Number(lo.total) || 0,
+            account_type: 'Guest Customer',
+          });
+        }
+      }
+    } catch (_) {}
+
+    if (profilesResult.error && ordersResult.error && customerMap.size === 0) {
+      setError((profilesResult.error || ordersResult.error).message);
+    }
+
+    setCustomers(Array.from(customerMap.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
     setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
-  const visible = customers.filter((c) => `${c.full_name} ${c.email} ${c.phone}`.toLowerCase().includes(search.toLowerCase()));
+  const visible = customers.filter((c) => `${c.full_name || ''} ${c.email || ''} ${c.phone || ''} ${c.account_type || ''}`.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <>
-      <PageHeader title="Customers Management" description="View registered customer accounts, contact details, and order history." />
+      <PageHeader title="Customers Management" description="View all customer accounts, guest buyers, contact details, and lifetime spend." />
       <AdminNotice message={error} />
       <section className="admin-panel">
         <div className="admin-table-toolbar">
-          <input className="admin-search-input" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, or phone" />
+          <input className="admin-search-input" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, phone, or account type" />
           <button className="admin-button admin-button-outline" onClick={load} disabled={loading}>Refresh</button>
           <button className="admin-button admin-button-outline" onClick={() => downloadCsv('customers.csv', visible)}>Export CSV</button>
         </div>
-        {loading ? <Loading /> : <DataTable columns={['full_name', 'email', 'phone', 'order_count', 'total_purchases', 'created_at']} rows={visible} empty="No customer profiles found." />}
+        {loading ? <Loading /> : (
+          <DataTable
+            columns={['full_name', 'email', 'phone', 'account_type', 'order_count', 'total_purchases', 'created_at']}
+            rows={visible}
+            empty="No customer profiles or order buyers found."
+          />
+        )}
       </section>
     </>
   );

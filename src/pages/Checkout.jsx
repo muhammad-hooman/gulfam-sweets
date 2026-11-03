@@ -69,7 +69,7 @@ export default function Checkout({ onShowToast }) {
         if (!prod) throw new Error('A cart product is no longer available.');
         const weights = getProductWeights(prod);
         const safeWi = typeof c.wi === 'number' && weights[c.wi] ? c.wi : 0;
-        const unitLabel = weights[safeWi]?.[0] || prod.variants?.[0]?.name || 'Standard';
+        const unitLabel = (weights[safeWi]?.[0] && weights[safeWi][0].trim()) || prod.variants?.[0]?.name || 'Standard';
         const unitPrice = calcPrice(prod, safeWi) || Number(prod.p) || Number(prod.base_price) || 0;
         const variantId = prod.variants?.[safeWi]?.id || (prod.variants && prod.variants[0]?.id) || null;
         return {
@@ -78,7 +78,7 @@ export default function Checkout({ onShowToast }) {
           productUuid: prod.productUuid || null,
           variantId,
           name: prod.n,
-          unitLabel,
+          unitLabel: unitLabel || 'Standard',
           unitPrice,
           totalPrice: unitPrice * c.q,
           q: c.q,
@@ -419,7 +419,11 @@ export default function Checkout({ onShowToast }) {
               3. Payment Method
             </h2>
             <div className="space-y-3">
-              <label className="flex items-center gap-3 p-3.5 rounded-2xl border-2 border-m bg-m-soft/30 cursor-pointer">
+              <label className={`flex items-center gap-3 p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${
+                formData.paymentMethod === 'Cash on Delivery'
+                  ? 'border-m bg-m-soft/30'
+                  : 'border-stone-200 hover:border-stone-300'
+              }`}>
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -438,6 +442,28 @@ export default function Checkout({ onShowToast }) {
                 </div>
               </label>
 
+              <label className={`flex items-center gap-3 p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${
+                formData.paymentMethod === 'EasyPaisa'
+                  ? 'border-m bg-m-soft/30'
+                  : 'border-stone-200 hover:border-stone-300'
+              }`}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="EasyPaisa"
+                  checked={formData.paymentMethod === 'EasyPaisa'}
+                  onChange={handleChange}
+                  className="!w-auto"
+                />
+                <div>
+                  <span className="font-semibold text-stone-900 text-sm block">
+                    EasyPaisa / Digital Wallet
+                  </span>
+                  <span className="text-xs text-stone-500">
+                    Send instant payment via EasyPaisa to Gulfam Sweets official business account.
+                  </span>
+                </div>
+              </label>
             </div>
           </div>
         </div>
@@ -454,7 +480,7 @@ export default function Checkout({ onShowToast }) {
               if (!product) return null;
               const weights = getProductWeights(product);
               const safeWi = typeof item.wi === 'number' && weights[item.wi] ? item.wi : 0;
-              const unitLabel = weights[safeWi]?.[0] || product.variants?.[0]?.name || 'Standard';
+              const unitLabel = (weights[safeWi]?.[0] && weights[safeWi][0].trim()) || product.variants?.[0]?.name || 'Standard';
               const unitPrice = calcPrice(product, safeWi) || Number(product.p) || Number(product.base_price) || 0;
 
               return (
