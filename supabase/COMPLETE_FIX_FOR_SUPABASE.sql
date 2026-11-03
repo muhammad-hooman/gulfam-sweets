@@ -33,13 +33,17 @@ end $$;
 
 grant all on table public.admin_users to anon, authenticated, service_role;
 
--- 2. Grant table and routine privileges to eliminate "permission denied"
+-- 2. Ensure inventory column compatibility
+alter table public.inventory 
+  add column if not exists low_stock_threshold integer default 5;
+
+-- 3. Grant table and schema privileges to eliminate "permission denied"
 grant usage on schema public to anon, authenticated, service_role;
 grant all on all tables in schema public to anon, authenticated, service_role;
 grant all on all sequences in schema public to anon, authenticated, service_role;
 grant all on all routines in schema public to anon, authenticated, service_role;
 
--- 3. Relax column and check constraints on orders
+-- 4. Relax column and check constraints on orders
 alter table public.orders 
   alter column shipping_address drop not null;
 
@@ -53,7 +57,7 @@ alter table public.orders
   add constraint orders_payment_method_check 
   check (payment_method is not null);
 
--- 4. Enable RLS and establish clear, permissive policies
+-- 5. Enable RLS and establish clear, permissive policies
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.profiles enable row level security;
@@ -120,7 +124,7 @@ create policy profiles_update_all on public.profiles
   using (true)
   with check (true);
 
--- 5. Dedicated Security Definer function to update order & payment status safely
+-- 6. Dedicated Security Definer function to update order & payment status safely
 create or replace function public.admin_update_order_status(
   p_order_id uuid,
   p_status text,
@@ -151,7 +155,7 @@ $$;
 
 grant execute on function public.admin_update_order_status(uuid, text, text) to anon, authenticated, service_role;
 
--- 6. Resilient Checkout Order Creation Function
+-- 7. Resilient Checkout Order Creation Function
 create or replace function public.create_checkout_order(
   p_payload jsonb,
   p_idempotency_key text
@@ -283,8 +287,8 @@ begin
       )
       returning * into v_variant;
 
-      insert into public.inventory (product_variant_id, quantity_on_hand, low_stock_threshold)
-      values (v_variant.id, 500, 5)
+      insert into public.inventory (product_variant_id, quantity_on_hand)
+      values (v_variant.id, 500)
       on conflict (product_variant_id) do nothing;
     end if;
 
@@ -312,8 +316,8 @@ begin
     select i.* into v_inventory from public.inventory i
       where i.product_variant_id = v_item.variant_id for update;
     if not found then
-      insert into public.inventory (product_variant_id, quantity_on_hand, low_stock_threshold)
-      values (v_item.variant_id, 500, 5)
+      insert into public.inventory (product_variant_id, quantity_on_hand)
+      values (v_item.variant_id, 500)
       returning * into v_inventory;
     elsif v_inventory.quantity_on_hand < v_item.quantity then
       update public.inventory set quantity_on_hand = quantity_on_hand + v_item.quantity + 100
@@ -415,7 +419,7 @@ $$;
 
 grant execute on function public.create_checkout_order(jsonb, text) to anon, authenticated, service_role;
 
--- 7. Ensure Beef Roll and fresh snacks have prices and variants
+-- 8. Ensure Beef Roll and fresh snacks have prices and variants
 update public.products
 set base_price = 900, status = 'active'
 where name ilike '%beef roll%' and (base_price is null or base_price = 0);
@@ -432,8 +436,8 @@ begin
       (v_prod_id, '12 pcs', 'GS-SNA-10-12PC', 12, 'piece', 900, true)
     on conflict do nothing;
     
-    insert into public.inventory (product_variant_id, quantity_on_hand, low_stock_threshold)
-    select id, 500, 5 from public.product_variants where product_id = v_prod_id
+    insert into public.inventory (product_variant_id, quantity_on_hand)
+    select id, 500 from public.product_variants where product_id = v_prod_id
     on conflict do nothing;
   end if;
 end $$;
