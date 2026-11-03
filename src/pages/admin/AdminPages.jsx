@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import MediaLibraryPage from './MediaLibraryPage';
 import WebsiteMediaEditorPage from './WebsiteMediaEditorPage';
+import { sendOrderNotificationEmail } from '../../services/orderService';
 import {
   PRODUCTS as STOREFRONT_PRODUCTS,
   CATEGORIES as STOREFRONT_CATEGORIES,
@@ -2226,6 +2227,7 @@ function OrderDetailsModal({ order, onClose, onStatusChange }) {
   const [orderStatus, setOrderStatus] = useState(order.status);
   const [payStatus, setPayStatus] = useState(order.payment_status || 'pending');
   const [saving, setSaving] = useState(false);
+  const [sendingMail, setSendingMail] = useState(false);
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
@@ -2255,6 +2257,22 @@ function OrderDetailsModal({ order, onClose, onStatusChange }) {
     }
     fetchItems();
   }, [order]);
+
+  async function handleSendEmailNotification() {
+    setSendingMail(true);
+    setNotice('');
+    setError('');
+    const fullOrder = { ...order, items };
+    const res = await sendOrderNotificationEmail(fullOrder);
+    setSendingMail(false);
+    if (res.success && res.sent) {
+      setNotice(`Email notification dispatched successfully to ${res.recipient || 'hoomankhan701@gmail.com'}`);
+    } else if (res.warning) {
+      setNotice(`Notification prepared: ${res.warning}`);
+    } else {
+      setError(res.error || 'Failed to dispatch email notification');
+    }
+  }
 
   async function handleUpdateStatuses() {
     setSaving(true);
@@ -2338,9 +2356,18 @@ function OrderDetailsModal({ order, onClose, onStatusChange }) {
               ))}
             </select>
           </label>
-          <div className="admin-form-actions is-wide">
+          <div className="admin-form-actions is-wide" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button className="admin-button" onClick={handleUpdateStatuses} disabled={saving}>
               {saving ? 'Updating…' : 'Update Order Status'}
+            </button>
+            <button
+              type="button"
+              className="admin-button admin-button-outline"
+              onClick={handleSendEmailNotification}
+              disabled={sendingMail}
+              title="Send full order notification to hoomankhan701@gmail.com"
+            >
+              {sendingMail ? 'Sending Notification…' : '📧 Resend Admin Email'}
             </button>
           </div>
         </div>

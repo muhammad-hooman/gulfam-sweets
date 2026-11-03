@@ -71,6 +71,11 @@ export async function createOrder(orderPayload) {
         total: Number(orderData.total),
       };
 
+      // Trigger automatic server-side email notification to admin (hoomankhan701@gmail.com)
+      sendOrderNotificationEmail(order).catch((mailErr) => {
+        console.warn('Background admin email notification warning:', mailErr);
+      });
+
       return {
         success: true,
         isDemo: false,
@@ -174,6 +179,11 @@ export async function createOrder(orderPayload) {
         console.error('Failed to store customer order backup:', storageError);
       }
 
+      // Trigger automatic server-side email notification to admin (hoomankhan701@gmail.com)
+      sendOrderNotificationEmail(orderRecord).catch((mailErr) => {
+        console.warn('Background admin email notification warning:', mailErr);
+      });
+
       return {
         success: true,
         isDemo: !directSuccess,
@@ -207,11 +217,17 @@ export async function createOrder(orderPayload) {
       status: 'Confirmed',
       createdAt: now,
       isDemo: true,
-      items: orderPayload.items,
+      items: orderPayload.items || [],
     };
 
     ordersList.unshift(orderRecord);
-    localStorage.setItem('gulfam_customer_orders', JSON.stringify(ordersList));
+    try {
+      localStorage.setItem('gulfam_customer_orders', JSON.stringify(ordersList));
+    } catch (_) {}
+
+    sendOrderNotificationEmail(orderRecord).catch((mailErr) => {
+      console.warn('Background admin email notification warning:', mailErr);
+    });
 
     return {
       success: true,
@@ -219,6 +235,22 @@ export async function createOrder(orderPayload) {
       orderId: orderNumber,
       order: orderRecord,
     };
+  }
+}
+
+export async function sendOrderNotificationEmail(order) {
+  try {
+    const res = await fetch('/api/send-order-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ order }),
+    });
+    return await res.json();
+  } catch (err) {
+    console.warn('Admin email notification dispatch error:', err);
+    return { success: false, error: err.message };
   }
 }
 
